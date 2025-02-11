@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <!-- Network file -->
+        <net-file value="osm.net.xml.gz"/>
+
+        <!-- Route files for all vehicle types -->
+        <route-files value="osm.bus_adjusted.trips.xml,osm.motorcycle_adjusted.trips.xml,osm.passenger_adjusted.trips.xml,osm.truck_adjusted.trips.xml"/>
+
+        <!-- Additional files, such as POIs or polygons -->
+        <additional-files value="osm.poly.xml.gz,vehicleTypes.add.xml"/>
+       <!-- <additional-files value="vehicleTypes.add.xml"/> -->
+
+    </input>
+
+    <processing>
+        <!-- Ignore route errors to prevent simulation interruptions -->
+        <ignore-route-errors value="true"/>
+        
+        <!-- Traffic light jam threshold (number of vehicles triggering state change) -->
+        <tls.actuated.jam-threshold value="30"/>
+    </processing>
+
+    <routing>
+        <!-- Enable rerouting to dynamically adapt to traffic conditions -->
+        <device.rerouting.adaptation-steps value="18"/>
+        <device.rerouting.adaptation-interval value="10"/>
+        
+        <!-- Rerouting device parameters -->
+        <device.rerouting.period value="30"/>
+        <device.rerouting.probability value="1.0"/>
+    </routing>
+
+    <report>
+        <!-- Enable detailed log statistics -->
+        <verbose value="true"/>
+        <duration-log.statistics value="true"/>
+        <no-step-log value="true"/>
+        
+        <!-- Output summary and FCD trajectory data -->
+        <summary-output value="baseline_summary.xml"/>
+        <fcd-output value="baseline_trajectory.xml"/>
+    </report>
+
+    <gui_only>
+        <!-- Reference the GUI settings file -->
+        <gui-settings-file value="osm.view.xml"/>
+    </gui_only>
+
+</sumoConfiguration>

@@ -1,0 +1,27 @@
+Traffic Simulation Report
+==============================
+Total Steps: 1800
+Maximum Vehicles in Network: 4201
+Average Speed Over Simulation: 5.74 m/s
+Vehicles Inserted: 8266
+Vehicles Removed: 2540
+
+Traffic Flow Over Time:
+Step 0: 2 vehicles
+Step 100: 693 vehicles
+Step 200: 1329 vehicles
+Step 300: 1904 vehicles
+Step 400: 2445 vehicles
+Step 500: 2946 vehicles
+Step 600: 3426 vehicles
+Step 700: 3909 vehicles
+Step 800: 4074 vehicles
+Step 900: 4178 vehicles
+Step 1000: 2690 vehicles
+Step 1100: 2245 vehicles
+Step 1200: 2204 vehicles
+Step 1300: 2186 vehicles
+Step 1400: 2149 vehicles
+Step 1500: 2132 vehicles
+Step 1600: 2100 vehicles
+Step 1700: 2076 vehicles

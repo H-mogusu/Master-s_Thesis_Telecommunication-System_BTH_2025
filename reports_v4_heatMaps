@@ -1,0 +1,110 @@
+from dta_module import DynamicTrafficAssignment
+import traci
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Parameters
+sumo_cmd = ["sumo-gui", "-c", "osm_adjusted.sumocfg"]
+max_steps = 1800
+
+# Vehicle data and reports
+vehicle_data = {}
+vehicle_limit = 4000
+graph_update_interval = 10
+reroute_interval = 5
+custom_vehicles = [
+    {"id": "dta_car1", "start": "edge1", "end": "edge50"},
+    {"id": "dta_car2", "start": "edge5", "end": "edge70"},
+]
+
+# Initialize DTA Manager
+dta_manager = DynamicTrafficAssignment(graph_update_interval, reroute_interval)
+
+# Functions for Reports
+def collect_vehicle_data(step):
+    """
+    Collect data about all passenger vehicles.
+    """
+    for veh_id in traci.vehicle.getIDList():
+        if veh_id.startswith("veh"):  # Only passenger cars
+            if veh_id not in vehicle_data:
+                vehicle_data[veh_id] = {
+                    "start_coord": traci.vehicle.getPosition(veh_id),
+                    "end_coord": None,
+                    "distance": 0.0,
+                    "speeds": [],
+                }
+            vehicle_data[veh_id]["distance"] += traci.vehicle.getDistance(veh_id)
+            vehicle_data[veh_id]["speeds"].append(traci.vehicle.getSpeed(veh_id))
+            vehicle_data[veh_id]["end_coord"] = traci.vehicle.getPosition(veh_id)
+
+def generate_reports():
+    """
+    Generate and save traffic reports.
+    """
+    df = pd.DataFrame.from_dict(vehicle_data, orient="index")
+    df["avg_speed"] = df["speeds"].apply(lambda speeds: sum(speeds) / len(speeds) if speeds else 0)
+    df.sort_values("distance", ascending=False, inplace=True)
+
+    # Report 1: 5 Longest Distances
+    longest_distances = df.head(5)
+
+    # Report 2: 5 Longest Distances with Mid Avg Speed
+    mid_speed_distances = df.assign(mid_speed=lambda x: x["speeds"].apply(lambda speeds: speeds[len(speeds)//2] if speeds else 0)).nlargest(5, "mid_speed")
+
+    # Report 3: 5 Longest Distances with Least Avg Speed
+    least_speed_distances = df.nsmallest(5, "avg_speed")
+
+    # Save Reports
+    with pd.ExcelWriter("REPORTS/vehicle_reports.xlsx") as writer:
+        longest_distances.to_excel(writer, sheet_name="Longest Distances")
+        mid_speed_distances.to_excel(writer, sheet_name="Mid Avg Speed")
+        least_speed_distances.to_excel(writer, sheet_name="Least Avg Speed")
+    print("Reports saved to REPORTS/vehicle_reports.xlsx.")
+
+def plot_heatmap(step_range, title):
+    """
+    Generate a heatmap of traffic based on vehicle positions.
+    """
+    positions = [
+        traci.vehicle.getPosition(veh_id)
+        for veh_id in traci.vehicle.getIDList()
+    ]
+    x, y = zip(*positions)
+    plt.figure(figsize=(10, 8))
+    plt.hist2d(x, y, bins=50, cmap="Reds")
+    plt.colorbar(label="Vehicle Density")
+    plt.title(title)
+    plt.xlabel("X Coordinate")
+    plt.ylabel("Y Coordinate")
+    plt.savefig(f"REPORTS/{title.replace(' ', '_')}.png")
+    plt.close()
+
+# Main Simulation Loop
+def run_simulation():
+    traci.start(sumo_cmd)
+    step = 0
+
+    while step < max_steps:
+        traci.simulationStep()
+        collect_vehicle_data(step)
+
+        # Update DTA and reroute custom vehicles
+        dta_manager.manage_dta(step, custom_vehicles)
+
+        # Heatmaps at specific intervals
+        if step == max_steps // 3:
+            plot_heatmap(step, "Start Traffic Heatmap")
+        elif step == max_steps // 2:
+            plot_heatmap(step, "Peak Traffic Heatmap")
+        elif step == max_steps - 1:
+            plot_heatmap(step, "End Traffic Heatmap")
+
+        step += 1
+
+    traci.close()
+    generate_reports()
+    print("Simulation complete and reports generated.")
+
+# Run the simulation
+run_simulation()

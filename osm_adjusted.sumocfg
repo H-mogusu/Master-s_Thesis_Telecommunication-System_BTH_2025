@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <!-- Network file -->
+        <net-file value="osm.net.xml"/>
+
+        <!-- Combined route file -->
+        <route-files value="combined_trips_routes.rou.xml"/>
+
+        <!-- Additional files -->
+        <additional-files value="osm.poly.xml.gz"/>
+    </input>
+	
+	    <time>
+        <!-- Define start and end time -->
+        <begin value="0"/>  <!-- Start simulation at 0 seconds -->
+        <end value="1200"/>  <!-- Stop simulation at 3600 seconds (1 hour) -->
+    </time>
+	
+	<processing>
+    <!-- Simulation duration -->
+		<ignore-route-errors value="true"/>
+	<!-- <vehicle-number-limit value="2000" />  --> <!-- Stops adding vehicles after 4000 -->
+	</processing>
+
+
+    <routing>
+        <!-- Dynamic rerouting to adapt to traffic -->
+        <device.rerouting.adaptation-steps value="10"/>
+        <device.rerouting.adaptation-interval value="20"/>
+    </routing>
+
+    <report>
+        <!-- Generate summary and trajectory files -->
+        <summary-output value="baseline_summary.xml"/>
+        <fcd-output value="baseline_trajectory.xml"/>
+        <verbose value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <gui_only>
+        <!-- GUI settings -->
+        <gui-settings-file value="osm.view.xml"/>
+    </gui_only>
+
+</sumoConfiguration>
